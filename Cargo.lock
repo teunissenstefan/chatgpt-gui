@@ -58,7 +58,10 @@ dependencies = [
 name = "chatgpt-gui"
 version = "0.1.0"
 dependencies = [
+ "glib",
+ "glib-build-tools",
  "gtk4",
+ "once_cell",
 ]
 
 [[package]]
@@ -247,6 +250,12 @@ dependencies = [
  "smallvec",
  "thiserror",
 ]
+
+[[package]]
+name = "glib-build-tools"
+version = "0.16.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "251935cb159350458a627642b0852a7fb8e027e3c5916dc2cebcd70f025de3fc"
 
 [[package]]
 name = "glib-macros"
