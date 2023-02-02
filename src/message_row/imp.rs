@@ -21,8 +21,8 @@ impl ObjectSubclass for MessageRow {
     type Type = super::MessageRow;
     type ParentType = gtk::Box;
 
-    fn class_init(klass: &mut Self::Class) {
-        klass.bind_template();
+    fn class_init(class: &mut Self::Class) {
+        class.bind_template();
     }
 
     fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {

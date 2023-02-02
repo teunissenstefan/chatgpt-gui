@@ -21,8 +21,8 @@ impl ObjectSubclass for Window {
     type Type = super::Window;
     type ParentType = gtk::ApplicationWindow;
 
-    fn class_init(klass: &mut Self::Class) {
-        klass.bind_template();
+    fn class_init(class: &mut Self::Class) {
+        class.bind_template();
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
