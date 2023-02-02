@@ -4,7 +4,6 @@
         <property name="modal">true</property>
         <property name="title" translatable="no">ChatGPT</property>
         <property name="name">confirm_dialog</property>
-<!--        <property name="css-classes">background confirm_dialog</property>-->
         <child>
             <object class="GtkBox">
                 <property name="orientation">vertical</property>
