@@ -1,6 +1,6 @@
 mod imp;
 
-use glib::{clone, Object};
+use glib::{clone, Object, MainContext, PRIORITY_DEFAULT};
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
@@ -8,10 +8,11 @@ use std::io::*;
 use gtk::gio::Settings;
 use crate::message_object::MessageObject;
 use crate::message_row::MessageRow;
-use crate::APP_ID;
+use crate::{APP_ID, window};
 use curl::easy::{Easy, List};
 use serde::{Serialize, Deserialize};
 use serde_json::json;
+use std::thread;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -78,12 +79,12 @@ impl Window {
         );
     }
 
-    fn convert_result_to_object(&self, returned: &String) -> Result<ResultMain> {
+    fn convert_result_to_object(returned: &String) -> Result<ResultMain> {
         let json_result: ResultMain = serde_json::from_str(returned)?;
         Ok(json_result)
     }
 
-    fn send_request(&self, msg: &String) {
+    fn send_request(msg: &String) -> String {
         let mut returned = Vec::new();
 
         let settings = Settings::new(APP_ID);
@@ -133,14 +134,14 @@ impl Window {
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
 
-        let r: ResultMain = match self.convert_result_to_object(&s.to_string()) {
+        let r: ResultMain = match window::Window::convert_result_to_object(&s.to_string()) {
             Ok(v) => v,
             Err(e) => panic!("AAAAAA: {}", e),
         };//TODO: handle
 
         let first_choice: &ResultChoice = r.choices.first().unwrap();
         let response_text = trim_newline(first_choice.text.to_string());
-        self.add_message(false, &response_text);
+        return response_text;
     }
 
     fn add_message(&self, user: bool, msg: &String) {
@@ -162,11 +163,36 @@ impl Window {
         }
         buffer.set_text("");
         self.add_message(true, &content);
-        self.imp().entry.set_sensitive(false);
+        let entry = &*self.imp().entry;
+        let obj = self;
 
-        self.send_request(&content);//TODO: unblock thread
-
-        self.imp().entry.set_sensitive(true);
+        let (sender_bool, receiver_bool) = MainContext::channel(PRIORITY_DEFAULT);
+        let (sender_message, receiver_message) = MainContext::channel(PRIORITY_DEFAULT);
+        let sender_bool = sender_bool.clone();
+        let sender_message = sender_message.clone();
+        thread::spawn(move || {
+            sender_bool.send(false).expect("Could not send through channel");
+            sender_message.send(window::Window::send_request(&content)).expect("Could not send through channel");
+            sender_bool.send(true).expect("Could not send through channel");
+        });
+        receiver_bool.attach(
+            None,
+            clone!(@weak entry => @default-return Continue(false),
+                    move |enable_entry| {
+                        entry.set_sensitive(enable_entry);
+                        Continue(true)
+                    }
+            ),
+        );
+        receiver_message.attach(
+            None,
+            clone!(@weak obj => @default-return Continue(false),
+                    move |message| {
+                        obj.add_message(false, &message);
+                        Continue(true)
+                    }
+            ),
+        );
     }
 
     fn setup_factory(&self) {
