@@ -4,9 +4,10 @@ use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
-
+use gtk::gio::{PropertyAction, SimpleAction};
 use crate::message_object::MessageObject;
 use crate::message_row::MessageRow;
+use crate::preferences::Preferences;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)

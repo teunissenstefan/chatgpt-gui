@@ -1,6 +1,7 @@
 mod message_object;
 mod message_row;
 mod window;
+mod preferences;
 
 use gio::Settings;
 use gdk::Display;
@@ -9,6 +10,7 @@ use glib::clone;
 use gtk::prelude::*;
 use gtk::{gdk, gio, Application, MessageDialog, ResponseType, CssProvider, StyleContext};
 use window::Window;
+use crate::preferences::Preferences;
 
 const APP_ID: &'static str = "org.teunissenstefan.ChatGPT";
 
@@ -40,9 +42,6 @@ fn load_css() {
 }
 
 fn build_ui(app: &Application) {
-    let settings = Settings::new(APP_ID);
-    let openai_api_key = settings.string("openai-api-key");
-
     let window = Window::new(app);
 
     let quit_dialog = MessageDialog::builder()
@@ -67,6 +66,14 @@ fn build_ui(app: &Application) {
             });
     }));
     window.add_action(&action_close);
+
+    let action_preferences = SimpleAction::new("show-preferences", None);
+    action_preferences.connect_activate(clone!(@weak app, @weak window => move |_, _| {
+        let preferences_window = Preferences::new(&app);
+        preferences_window.set_transient_for(Some(&window));
+        preferences_window.show();
+        }));
+    window.add_action(&action_preferences);
 
     window.present();
 }

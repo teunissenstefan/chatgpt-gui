@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="Preferences" parent="GtkApplicationWindow">
+        <property name="modal">true</property>
+        <property name="title" translatable="no">Preferences - ChatGPT</property>
+        <property name="name">preferences</property>
+        <child>
+            <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="margin-top">12</property>
+                <property name="margin-bottom">12</property>
+                <property name="margin-start">12</property>
+                <property name="margin-end">12</property>
+                <property name="spacing">6</property>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="hexpand">true</property>
+                        <child>
+                            <object class="GtkLabel" id="openai_api_key_label">
+                                <property name="hexpand">false</property>
+                                <property name="label" translatable="yes">OpenAI API key</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="openai_api_key_entry">
+                                <property name="hexpand">true</property>
+                                <property name="placeholder-text" translatable="yes">Enter your Open AI API key here...</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="hexpand">true</property>
+                        <child>
+                            <object class="GtkButton" id="close_button">
+                                <property name="hexpand">false</property>
+                                <property name="label" translatable="yes">Close</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

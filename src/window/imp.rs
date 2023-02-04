@@ -4,6 +4,7 @@ use glib::subclass::InitializingObject;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, CompositeTemplate, Entry, ListView};
+use glib::signal::Inhibit;
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/org/teunissenstefan/ChatGPT/window.ui")]
@@ -45,6 +46,12 @@ impl ObjectImpl for Window {
 
 impl WidgetImpl for Window {}
 
-impl WindowImpl for Window {}
+impl WindowImpl for Window {
+    fn close_request(&self) -> Inhibit {
+        println!("closing");
+
+        self.parent_close_request()
+    }
+}
 
 impl ApplicationWindowImpl for Window {}
