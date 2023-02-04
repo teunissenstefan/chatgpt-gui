@@ -5,5 +5,9 @@
             <default>"Enter your Open AI API key here..."</default>
             <summary>OpenAI API key</summary>
         </key>
+        <key name="openai-model" type="s">
+            <default>"text-davinci-003"</default>
+            <summary>OpenAI model</summary>
+        </key>
     </schema>
 </schemalist>

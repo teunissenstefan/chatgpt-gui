@@ -4,16 +4,42 @@ use glib::{clone, Object};
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
-use gtk::gio::{PropertyAction, SimpleAction};
+use std::io::*;
+use gtk::gio::Settings;
 use crate::message_object::MessageObject;
 use crate::message_row::MessageRow;
-use crate::preferences::Preferences;
+use crate::APP_ID;
+use curl::easy::{Easy, List};
+use serde::{Serialize, Deserialize};
+use serde_json::json;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
         @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
+}
+
+#[derive(Serialize, Deserialize)]
+struct ResultChoice {
+    text: String,
+    finish_reason: String
+}
+
+#[derive(Serialize, Deserialize)]
+struct ResultMain {
+    id: String,
+    choices: Vec<ResultChoice>,
+}
+
+fn trim_newline(mut s: String) -> String {
+    if s.starts_with('\n') {
+        s.remove(0);
+    }
+    if s.starts_with('\n') {
+        s.remove(0);
+    }
+    return s;
 }
 
 impl Window {
@@ -52,14 +78,79 @@ impl Window {
         );
     }
 
-    fn add_message(&self, user: bool, msg: String) {
+    fn convert_result_to_object(&self, returned: &String) -> Result<ResultMain> {
+        let json_result: ResultMain = serde_json::from_str(returned)?;
+        Ok(json_result)
+    }
+
+    fn send_request(&self, msg: &String) {
+        let mut returned = Vec::new();
+
+        let settings = Settings::new(APP_ID);
+        let openai_api_key = settings.string("openai-api-key").to_string();
+        let openai_model = settings.string("openai-model").to_string();
+
+        let body_prompt = msg;
+        let json_data = json!({
+            "model": openai_model,
+            "prompt": body_prompt,
+            "max_tokens": 128,
+            "n": 1,
+            "temperature": 0,
+            "user": format!("{:x}", md5::compute(whoami::username()))
+        }).to_string();
+        let mut data = json_data.as_bytes();
+
+        let mut easy = Easy::new();
+        easy.post(true);
+        easy.url("https://api.openai.com/v1/completions").unwrap();
+        easy.post_field_size(data.len() as u64).unwrap();
+
+        //Headers
+        let mut list = List::new();
+        let mut header_bearer_token = "Authorization: Bearer ".to_string();
+        header_bearer_token.push_str(&openai_api_key);
+        list.append(&header_bearer_token).unwrap();
+        list.append("Content-Type: application/json").unwrap();
+        easy.http_headers(list).unwrap();
+
+        //Send JSON body
+        let mut transfer = easy.transfer();
+        transfer.read_function(|buf| {
+            Ok(data.read(buf).unwrap_or(0))
+        }).unwrap();
+
+        //Handle response
+        transfer.write_function(|new_data| {
+            returned.extend_from_slice(new_data);
+            Ok(new_data.len())
+        }).unwrap();
+        transfer.perform().unwrap();
+        drop(transfer);
+
+        let s = match std::str::from_utf8(&*returned) {
+            Ok(v) => v,
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+
+        let r: ResultMain = match self.convert_result_to_object(&s.to_string()) {
+            Ok(v) => v,
+            Err(e) => panic!("AAAAAA: {}", e),
+        };//TODO: handle
+
+        let first_choice: &ResultChoice = r.choices.first().unwrap();
+        let response_text = trim_newline(first_choice.text.to_string());
+        self.add_message(false, &response_text);
+    }
+
+    fn add_message(&self, user: bool, msg: &String) {
         let from_who;
         if user {
             from_who = "You    ";
         } else {
             from_who = "ChatGPT";
         }
-        let message = MessageObject::new(from_who.parse().unwrap(), msg);
+        let message = MessageObject::new(from_who.parse().unwrap(), msg.to_string());
         self.messages().append(&message);
     }
 
@@ -70,8 +161,12 @@ impl Window {
             return;
         }
         buffer.set_text("");
-        self.add_message(true, content);
-        // self.imp().entry.set_sensitive(false);
+        self.add_message(true, &content);
+        self.imp().entry.set_sensitive(false);
+
+        self.send_request(&content);//TODO: unblock thread
+
+        self.imp().entry.set_sensitive(true);
     }
 
     fn setup_factory(&self) {

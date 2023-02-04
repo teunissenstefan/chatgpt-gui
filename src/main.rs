@@ -3,7 +3,6 @@ mod message_row;
 mod window;
 mod preferences;
 
-use gio::Settings;
 use gdk::Display;
 use gio::SimpleAction;
 use glib::clone;

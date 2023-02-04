@@ -9,6 +9,8 @@ pub struct Preferences {
     #[template_child]
     pub openai_api_key_entry: TemplateChild<Entry>,
     #[template_child]
+    pub openai_model_entry: TemplateChild<Entry>,
+    #[template_child]
     pub close_button: TemplateChild<Button>,
 }
 

@@ -26,7 +26,27 @@
                         <child>
                             <object class="GtkEntry" id="openai_api_key_entry">
                                 <property name="hexpand">true</property>
+                                <property name="visibility">false</property>
                                 <property name="placeholder-text" translatable="yes">Enter your Open AI API key here...</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="hexpand">true</property>
+                        <child>
+                            <object class="GtkLabel" id="openai_model_label">
+                                <property name="hexpand">false</property>
+                                <property name="label" translatable="yes">OpenAI model</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="openai_model_entry">
+                                <property name="hexpand">true</property>
+                                <property name="placeholder-text" translatable="yes">text-davinci-003</property>
                             </object>
                         </child>
                     </object>
