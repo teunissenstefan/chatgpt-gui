@@ -6,7 +6,7 @@ use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate, Label};
 
 #[derive(Default, CompositeTemplate)]
-#[template(resource = "/org/gtk_rs/ChatGPT/message_row.ui")]
+#[template(resource = "/org/teunissenstefan/ChatGPT/message_row.ui")]
 pub struct MessageRow {
     #[template_child]
     pub user_label: TemplateChild<Label>,

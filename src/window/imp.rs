@@ -6,7 +6,7 @@ use gtk::subclass::prelude::*;
 use gtk::{gio, glib, CompositeTemplate, Entry, ListView};
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/org/gtk_rs/ChatGPT/window.ui")]
+#[template(resource = "/org/teunissenstefan/ChatGPT/window.ui")]
 pub struct Window {
     #[template_child]
     pub entry: TemplateChild<Entry>,

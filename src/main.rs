@@ -2,6 +2,7 @@ mod message_object;
 mod message_row;
 mod window;
 
+use gio::Settings;
 use gdk::Display;
 use gio::SimpleAction;
 use glib::clone;
@@ -9,7 +10,7 @@ use gtk::prelude::*;
 use gtk::{gdk, gio, Application, MessageDialog, ResponseType, CssProvider, StyleContext};
 use window::Window;
 
-const APP_ID: &'static str = "org.gtk_rs.ChatGPT";
+const APP_ID: &'static str = "org.teunissenstefan.ChatGPT";
 
 fn main() {
     gio::resources_register_include!("chatgpt.gresource")
@@ -39,6 +40,9 @@ fn load_css() {
 }
 
 fn build_ui(app: &Application) {
+    let settings = Settings::new(APP_ID);
+    let openai_api_key = settings.string("openai-api-key");
+
     let window = Window::new(app);
 
     let quit_dialog = MessageDialog::builder()

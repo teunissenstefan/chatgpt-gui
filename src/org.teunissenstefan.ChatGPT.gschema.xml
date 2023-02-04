@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemalist>
+    <schema id="org.teunissenstefan.ChatGPT" path="/org/teunissenstefan/ChatGPT/">
+        <key name="openai-api-key" type="s">
+            <default>"Enter your Open AI API key here"</default>
+            <summary>OpenAI API key</summary>
+        </key>
+    </schema>
+</schemalist>
