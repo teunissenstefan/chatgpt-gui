@@ -3,6 +3,5 @@
     <gresource prefix="/org/gtk_rs/ChatGPT/">
         <file compressed="true" preprocess="xml-stripblanks">message_row.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">confirm_dialog.ui</file>
     </gresource>
 </gresources>

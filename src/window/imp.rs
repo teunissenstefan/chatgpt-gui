@@ -38,6 +38,8 @@ impl ObjectImpl for Window {
         obj.setup_messages();
         obj.setup_callbacks();
         obj.setup_factory();
+
+        self.entry.get().grab_focus();
     }
 }
 
