@@ -42,32 +42,36 @@ impl Window {
         self.imp()
             .entry
             .connect_activate(clone!(@weak self as window => move |_| {
-                window.new_message(true);
+                window.send_message();
             }));
 
         self.imp().entry.connect_icon_release(
             clone!(@weak self as window => move |_,_| {
-                window.new_message(true);
+                window.send_message();
             }),
         );
     }
 
-    fn new_message(&self, user: bool) {
+    fn add_message(&self, user: bool, msg: String) {
+        let from_who;
+        if user {
+            from_who = "You    ";
+        } else {
+            from_who = "ChatGPT";
+        }
+        let message = MessageObject::new(from_who.parse().unwrap(), msg);
+        self.messages().append(&message);
+    }
+
+    fn send_message(&self) {
         let buffer = self.imp().entry.buffer();
         let content = buffer.text();
         if content.is_empty() {
             return;
         }
         buffer.set_text("");
-
-        let from_who;
-        if user {
-            from_who = "You    ";
-        }else{
-            from_who = "ChatGPT";
-        }
-        let message = MessageObject::new(from_who.parse().unwrap(), content);
-        self.messages().append(&message);
+        self.add_message(true, content);
+        // self.imp().entry.set_sensitive(false);
     }
 
     fn setup_factory(&self) {

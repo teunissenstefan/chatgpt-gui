@@ -35,7 +35,7 @@ impl Preferences {
 
         openai_api_key_entry.connect_changed(clone!(@weak settings => move |tree_selection| {
             settings
-                .set_string(X, &tree_selection.buffer().text())
+                .set_string(SETTING_OPENAI_API_KEY, &tree_selection.buffer().text())
                 .expect("Could not set setting.");
         }));
     }
