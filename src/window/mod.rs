@@ -24,7 +24,7 @@ glib::wrapper! {
 #[derive(Serialize, Deserialize)]
 struct ResultChoice {
     text: String,
-    finish_reason: String
+    finish_reason: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -147,7 +147,7 @@ impl Window {
     fn add_message(&self, user: bool, msg: &String) {
         let from_who;
         if user {
-            from_who = "You    ";
+            from_who = "You";
         } else {
             from_who = "ChatGPT";
         }
@@ -163,32 +163,25 @@ impl Window {
         }
         buffer.set_text("");
         self.add_message(true, &content);
-        let entry = &*self.imp().entry;
         let obj = self;
 
-        let (sender_bool, receiver_bool) = MainContext::channel(PRIORITY_DEFAULT);
-        let (sender_message, receiver_message) = MainContext::channel(PRIORITY_DEFAULT);
-        let sender_bool = sender_bool.clone();
-        let sender_message = sender_message.clone();
+        let (sender, receiver) = MainContext::channel(PRIORITY_DEFAULT);
+        let sender = sender.clone();
         thread::spawn(move || {
-            sender_bool.send(false).expect("Could not send through channel");
-            sender_message.send(window::Window::send_request(&content)).expect("Could not send through channel");
-            sender_bool.send(true).expect("Could not send through channel");
+            sender.send("OPENAI_CHATGPT_BUTTON_DISABLE".to_string()).expect("Could not send through channel");
+            sender.send(window::Window::send_request(&content)).expect("Could not send through channel");
         });
-        receiver_bool.attach(
-            None,
-            clone!(@weak entry => @default-return Continue(false),
-                    move |enable_entry| {
-                        entry.set_sensitive(enable_entry);
-                        Continue(true)
-                    }
-            ),
-        );
-        receiver_message.attach(
+        receiver.attach(
             None,
             clone!(@weak obj => @default-return Continue(false),
                     move |message| {
-                        obj.add_message(false, &message);
+                        if message == "OPENAI_CHATGPT_BUTTON_DISABLE" {
+                            obj.imp().entry.set_sensitive(false);
+                        } else {
+                            obj.add_message(false, &message);
+                            obj.imp().entry.set_sensitive(true);
+                            obj.imp().entry.get().grab_focus();
+                        }
                         Continue(true)
                     }
             ),

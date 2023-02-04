@@ -39,7 +39,8 @@
                         <property name="vexpand">true</property>
                         <child>
                             <object class="GtkListView" id="messages_list">
-                                <property name="valign">start</property>
+                                <property name="name">messages_list</property>
+                                <property name="valign">fill</property>
                             </object>
                         </child>
                     </object>

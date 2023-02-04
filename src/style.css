@@ -1,3 +1,9 @@
 .dialog.message > .dialog-vbox.vertical {
     margin: 10px 10px 10px 10px;
 }
+#messages_list .activatable{
+    border-top: 1px solid lightgray;
+}
+#messages_list .activatable:first-child{
+    border: 0;
+}
