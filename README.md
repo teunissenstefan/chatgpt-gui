@@ -10,7 +10,7 @@ cd chatgpt-gui
 cargo build --release
 ```
 
-##Todo
+## Todo
 
 * Connect insert_text to only allow digits in certain fields in preferences
 * Continue conversation
