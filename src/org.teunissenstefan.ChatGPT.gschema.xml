@@ -10,7 +10,7 @@
             <summary>OpenAI model</summary>
         </key>
         <key name="openai-max-tokens" type="i">
-            <default>128</default>
+            <default>256</default>
             <summary>OpenAI max tokens</summary>
         </key>
     </schema>
