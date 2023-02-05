@@ -13,12 +13,20 @@
                 <property name="margin-end">12</property>
                 <property name="spacing">6</property>
                 <child>
+                    <object class="GtkLinkButton" id="openai_gpt_3_docs_linkbutton">
+                        <property name="label" translatable="yes">OpenAI GPT-3 documentation</property>
+                        <property name="uri">https://platform.openai.com/docs/models/gpt-3</property>
+                    </object>
+                </child>
+                <child>
                     <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <property name="spacing">6</property>
                         <property name="hexpand">true</property>
                         <child>
                             <object class="GtkLabel" id="openai_api_key_label">
+                                <property name="width-request">150</property>
+                                <property name="xalign">0</property>
                                 <property name="hexpand">false</property>
                                 <property name="label" translatable="yes">OpenAI API key</property>
                             </object>
@@ -39,6 +47,8 @@
                         <property name="hexpand">true</property>
                         <child>
                             <object class="GtkLabel" id="openai_model_label">
+                                <property name="width-request">150</property>
+                                <property name="xalign">0</property>
                                 <property name="hexpand">false</property>
                                 <property name="label" translatable="yes">OpenAI model</property>
                             </object>
@@ -47,6 +57,46 @@
                             <object class="GtkEntry" id="openai_model_entry">
                                 <property name="hexpand">true</property>
                                 <property name="placeholder-text" translatable="yes">text-davinci-003</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="hexpand">true</property>
+                        <child>
+                            <object class="GtkLabel" id="openai_max_tokens_label">
+                                <property name="width-request">150</property>
+                                <property name="xalign">0</property>
+                                <property name="hexpand">false</property>
+                                <property name="label" translatable="yes">OpenAI max tokens</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">0</property>
+                                <property name="hexpand">true</property>
+                                <child>
+                                    <object class="GtkButton" id="openai_max_tokens_down_button">
+                                        <property name="hexpand">false</property>
+                                        <property name="label" translatable="yes">-</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkEntry" id="openai_max_tokens_entry">
+                                        <property name="hexpand">true</property>
+                                        <property name="placeholder-text" translatable="yes">128</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="openai_max_tokens_up_button">
+                                        <property name="hexpand">false</property>
+                                        <property name="label" translatable="yes">+</property>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                     </object>

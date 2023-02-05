@@ -9,5 +9,9 @@
             <default>"text-davinci-003"</default>
             <summary>OpenAI model</summary>
         </key>
+        <key name="openai-max-tokens" type="i">
+            <default>128</default>
+            <summary>OpenAI max tokens</summary>
+        </key>
     </schema>
 </schemalist>

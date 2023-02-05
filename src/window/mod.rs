@@ -90,12 +90,13 @@ impl Window {
         let settings = Settings::new(APP_ID);
         let openai_api_key = settings.string("openai-api-key").to_string();
         let openai_model = settings.string("openai-model").to_string();
+        let openai_max_tokens = settings.int("openai-max-tokens");
 
         let body_prompt = msg;
         let json_data = json!({
             "model": openai_model,
             "prompt": body_prompt,
-            "max_tokens": 128,
+            "max_tokens": openai_max_tokens,
             "n": 1,
             "temperature": 0,
             "user": format!("{:x}", md5::compute(whoami::username()))
@@ -137,7 +138,9 @@ impl Window {
         let r: ResultMain = match window::Window::convert_result_to_object(&s.to_string()) {
             Ok(v) => v,
             Err(e) => panic!("AAAAAA: {}", e),
-        };//TODO: handle
+        };
+        //TODO: handle errors
+        //TODO: handle "length" finish_reason
 
         let first_choice: &ResultChoice = r.choices.first().unwrap();
         let response_text = trim_newline(first_choice.text.to_string());

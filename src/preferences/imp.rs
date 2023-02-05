@@ -1,15 +1,23 @@
 use glib::subclass::InitializingObject;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate, Button, Entry};
+use gtk::{glib, CompositeTemplate, Button, Entry, LinkButton};
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/org/teunissenstefan/ChatGPT/preferences.ui")]
 pub struct Preferences {
     #[template_child]
+    pub openai_gpt_3_docs_linkbutton: TemplateChild<LinkButton>,
+    #[template_child]
     pub openai_api_key_entry: TemplateChild<Entry>,
     #[template_child]
     pub openai_model_entry: TemplateChild<Entry>,
+    #[template_child]
+    pub openai_max_tokens_entry: TemplateChild<Entry>,
+    #[template_child]
+    pub openai_max_tokens_down_button: TemplateChild<Button>,
+    #[template_child]
+    pub openai_max_tokens_up_button: TemplateChild<Button>,
     #[template_child]
     pub close_button: TemplateChild<Button>,
 }
