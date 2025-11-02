@@ -4,6 +4,7 @@ use glib::{BindingFlags, Object};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib};
+use regex::Regex;
 
 use crate::message_object::MessageObject;
 
@@ -24,6 +25,19 @@ impl MessageRow {
         Object::builder().build()
     }
 
+    fn make_urls_clickable(text: &str) -> String {
+        // Escape HTML entities first
+        let escaped = glib::markup_escape_text(text);
+
+        // Regular expression to match URLs
+        let url_regex = Regex::new(
+            r"(https?://[^\s<>]+)"
+        ).unwrap();
+
+        // Replace URLs with clickable links
+        url_regex.replace_all(&escaped, r#"<a href="$1">$1</a>"#).to_string()
+    }
+
     pub fn bind(&self, message_object: &MessageObject) {
         let user_label = self.imp().user_label.get();
         let content_label = self.imp().content_label.get();
@@ -38,6 +52,9 @@ impl MessageRow {
         let content_label_binding = message_object
             .bind_property("content", &content_label, "label")
             .flags(BindingFlags::SYNC_CREATE)
+            .transform_to(|_, value: String| {
+                Some(Self::make_urls_clickable(&value))
+            })
             .build();
         bindings.push(content_label_binding);
     }

@@ -21,16 +21,28 @@ glib::wrapper! {
                     gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ResultChoice {
     text: String,
-    finish_reason: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    finish_reason: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ResultMain {
-    id: String,
-    choices: Vec<ResultChoice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    choices: Option<Vec<ResultChoice>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<ApiError>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ApiError {
+    message: String,
+    #[serde(rename = "type")]
+    error_type: String,
 }
 
 fn trim_newline(mut s: String) -> String {
@@ -84,7 +96,7 @@ impl Window {
         Ok(json_result)
     }
 
-    fn send_request(msg: &String) -> String {
+    fn send_request(msg: &String) -> std::result::Result<String, String> {
         let mut returned = Vec::new();
 
         let settings = Settings::new(APP_ID);
@@ -132,19 +144,29 @@ impl Window {
 
         let s = match std::str::from_utf8(&*returned) {
             Ok(v) => v,
-            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+            Err(e) => return Err(format!("Invalid UTF-8 sequence: {}", e)),
         };
 
         let r: ResultMain = match window::Window::convert_result_to_object(&s.to_string()) {
             Ok(v) => v,
-            Err(e) => panic!("AAAAAA: {}", e),
+            Err(e) => {
+                eprintln!("Failed to deserialize API response: {}", e);
+                eprintln!("Raw response was: {}", s);
+                return Err(format!("Failed to deserialize OpenAI API response: {}", e));
+            }
         };
-        //TODO: handle errors
+
+        // Check for API errors
+        if let Some(error) = r.error {
+            return Err(format!("OpenAI API Error: {}", error.message));
+        }
+
         //TODO: handle "length" finish_reason
 
-        let first_choice: &ResultChoice = r.choices.first().unwrap();
+        let choices = r.choices.ok_or("No choices in API response".to_string())?;
+        let first_choice: &ResultChoice = choices.first().ok_or("Empty choices array".to_string())?;
         let response_text = trim_newline(first_choice.text.to_string());
-        return response_text;
+        return Ok(response_text);
     }
 
     fn add_message(&self, user: bool, msg: &String) {
@@ -172,7 +194,14 @@ impl Window {
         let sender = sender.clone();
         thread::spawn(move || {
             sender.send("OPENAI_CHATGPT_BUTTON_DISABLE".to_string()).expect("Could not send through channel");
-            sender.send(window::Window::send_request(&content)).expect("Could not send through channel");
+            match window::Window::send_request(&content) {
+                Ok(response) => {
+                    sender.send(response).expect("Could not send through channel");
+                }
+                Err(error_msg) => {
+                    sender.send(format!("Error: {}", error_msg)).expect("Could not send through channel");
+                }
+            }
         });
         receiver.attach(
             None,
